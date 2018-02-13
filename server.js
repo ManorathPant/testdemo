@@ -7,7 +7,7 @@ var jwt= require("jsonwebtoken");
 
 const app=express();
 
-var dbUrl='mongodb://localhost/JwtTestDb';
+var dbUrl='mongodb://<manorathpant>:<Sanjeev@7>@ds235418.mlab.com:35418/dbtournpackages';
 
 mongoose.connect(dbUrl, function(err, db) {
     if (err) throw err;
@@ -23,42 +23,63 @@ var UserSchema = new Schema({
 });
 module.exports = mongoose.model('User', UserSchema);
 
-app.use(function(req, res, next) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
-    next();
+var _m=new User();
+_m.email="manorath";
+_m.password="asdadad";
+_m.token="asdasd";
+_m.save(function(err){
+    if(err){
+        console.log({info:'error during user create'});
+    }
+    console.log({info:'user is created successfully'});
 });
+// app.use(function(req, res, next) {
+//     res.setHeader('Access-Control-Allow-Origin', '*');
+//     res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
+//     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
+//     next();
+// });
 
-//Parsers
+// //Parsers
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));
 
 app.use(express.static(path.join(__dirname,'dist')));
 
-app.post('/authenticate', function(req, res) {
-    User.findOne({email: req.body.email, password: req.body.password}, function(err, user) {
-        if (err) {
-            res.json({
-                type: false,
-                data: "Error occured: " + err
-            });
-        } else {
-            if (user) {
-               res.json({
-                    type: true,
-                    data: user,
-                    token: user.token
-                }); 
-            } else {
-                res.json({
-                    type: false,
-                    data: "Incorrect email/password"
-                });    
-            }
+app.post('/user',function(req,res){
+    var newUser=new User(req.body);
+    newUser.save(function(err){
+        if(err){
+            res.json({info:'error during user create'});
         }
+        
+        res.json({info:'user is created successfully'});
     });
 });
+
+// app.post('/authenticate', function(req, res) {
+//     User.findOne({email: req.body.email, password: req.body.password}, function(err, user) {
+//         if (err) {
+//             res.json({
+//                 type: false,
+//                 data: "Error occured: " + err
+//             });
+//         } else {
+//             if (user) {
+//                res.json({
+//                     type: true,
+//                     data: user,
+//                     token: user.token
+//                 }); 
+//             } else {
+//                 res.json({
+//                     type: false,
+//                     data: "Incorrect email/password"
+//                 });    
+//             }
+//         }
+//     });
+// });
 
 
 app.get('*',(req,res)=>{
